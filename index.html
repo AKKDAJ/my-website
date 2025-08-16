@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>登入 - Shadow Vanguards</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    
+<div class="grid grid-2">
+  <div class="card">
+    <h1 data-i18n="login">登入</h1>
+    <p class="subtitle">歡迎回來，請輸入帳號與密碼。</p>
+    <div class="grid">
+      <input id="username" class="input" placeholder="帳號">
+      <input id="password" class="input" type="password" placeholder="密碼">
+      <button id="loginBtn"><span data-i18n="login">登入</span></button>
+    </div>
+  </div>
+  <div class="card">
+    <h2 data-i18n="register">註冊</h2>
+    <p class="subtitle">建立新帳戶，加入 Shadow Vanguards。</p>
+    <div class="grid">
+      <input id="ruser" class="input" placeholder="帳號">
+      <input id="rpass" class="input" type="password" placeholder="密碼">
+      <button id="regBtn"><span data-i18n="register">註冊</span></button>
+    </div>
+  </div>
+</div>
+
+  </div>
+  <script src="js/main.js"></script>
+  <script>
+  
+const users = lsGet('users', [{u:'pop1',p:'pop1',role:'owner'},{u:'admin1',p:'123321aZ',role:'admin'}]);
+lsSet('users', users);
+document.getElementById('regBtn').onclick = ()=>{
+  const u = document.getElementById('ruser').value.trim();
+  const p = document.getElementById('rpass').value.trim();
+  if(!u||!p) return alert('請輸入帳密');
+  const arr = lsGet('users', []);
+  if(arr.find(x=>x.u===u)) return alert('帳號已存在');
+  arr.push({u,p,role:'user'}); lsSet('users', arr); alert('註冊成功，請登入');
+};
+document.getElementById('loginBtn').onclick = ()=>{
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value.trim();
+  const arr = lsGet('users', []);
+  const user = arr.find(x=>x.u===u && x.p===p);
+  if(!user) return alert('帳號或密碼錯誤');
+  lsSet('session', {u:user.u, role:user.role, t:Date.now()});
+  // 記錄登入日誌（僅擁有者可檢視）
+  const logs = lsGet('logs', []);
+  logs.push({type:'login', user:user.u, role:user.role, time:new Date().toISOString()});
+  lsSet('logs', logs);
+  location.href='dashboard.html';
+};
+
+  </script>
+</body>
+</html>
